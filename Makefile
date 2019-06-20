@@ -1,7 +1,7 @@
 NAME := kube-cleanup-operator
 AUTHOR=lwolf
 VERSION ?= 0.4.1
-REGISTRY ?= quay.io
+REGISTRY ?= 805157463669.dkr.ecr.us-east-1.amazonaws.com
 GIT_SHA=$(shell git --no-pager describe --always --dirty)
 BUILD_TIME=$(shell date '+%s')
 LFLAGS ?= -X main.gitsha=${GIT_SHA} -X main.compiled=${BUILD_TIME}
@@ -42,11 +42,12 @@ docker-release:
 	@echo "--> Building a release image"
 	@$(MAKE) static
 	@$(MAKE) docker
-	@docker push ${REGISTRY}/${AUTHOR}/${NAME}:${VERSION}
+	@$$(aws ecr get-login --no-include-email --region us-east-1)
+	@docker push ${REGISTRY}/${NAME}:${VERSION}
 
 docker:
 	@echo "--> Building the docker image"
-	docker build -t ${REGISTRY}/${AUTHOR}/${NAME}:${VERSION} .
+	docker build -t ${REGISTRY}/${NAME}:${VERSION} .
 
 release: static
 	mkdir -p release
